@@ -57,7 +57,12 @@ jobs:
     - <<: *test_body
       stage: prepare cache
       env:
-        - MODE=cache-warmup
+        - MODE=cache-verilator
+
+    - <<: *test_body
+      stage: prepare cache
+      env:
+        - MODE=cache-yosys
 
     - <<: *test_body
       env:

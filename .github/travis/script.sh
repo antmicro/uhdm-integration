@@ -11,8 +11,12 @@ case $MODE in
 	make -j $(nproc) surelog/regression
 	;;
 
-    cache-warmup)
-	make -j $(nproc) ENABLE_READLINE=0 PRETTY=0 surelog uhdm/verilator/build yosys/yosys
+    cache-verilator)
+	make -j $(nproc) ENABLE_READLINE=0 PRETTY=0 surelog uhdm/verilator/build
+	;;
+
+    cache-yosys)
+	make -j $(nproc) ENABLE_READLINE=0 PRETTY=0 surelog yosys/yosys
 	;;
 
     test)
