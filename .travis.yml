@@ -7,6 +7,10 @@ compiler:
 cache:
   ccache: true
   apt: true
+  directories:
+    - verilator/build
+    - Surelog/build
+    - UHDM/build
 stages:
   - prepare cache
   - test

@@ -16,6 +16,12 @@ case $MODE in
         # Other HTML outputs from there ?
         ;;
 
+    cache-verilator)
+        ;;
+
+    cache-yosys)
+        ;;
+
     *)
 	echo "success.sh: Unknown mode $MODE"
 	exit 1
