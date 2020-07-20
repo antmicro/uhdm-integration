@@ -12,8 +12,9 @@ jobs:
   fast_finish: true
   include:
     - &test_body
+      stage: prepare cache
       env:
-        - TEST_CASE=tests/onenet TARGET=uhdm/verilator/test-ast
+        - MODE=cache-warmup  # Override for each test
       addons:
         apt:
           sources:
@@ -51,14 +52,14 @@ jobs:
         - ./.github/travis/success.sh
 
     - <<: *test_body
-      stage: prepare cache
-      env:
-        - MODE=cache-warmup
-
-    - <<: *test_body
+      stage: test  # Holds for all cases below
       env:
         - MODE=surelog-uhdm
         # ΤODO: add deploy with provider:pages local_dir=/tmp/pages
+
+    - <<: *test_body
+      env:
+        - TEST_CASE=tests/onenet TARGET=uhdm/verilator/test-ast
 
     - <<: *test_body
       env:
