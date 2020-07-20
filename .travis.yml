@@ -11,8 +11,8 @@ cache:
 jobs:
   fast_finish: true
   include:
-    - &test_body
-      stage: prepare cache
+    - stage: prepare cache
+      &test_body
       env:
         - MODE=cache-warmup  # Override for each test
       addons:
@@ -51,8 +51,8 @@ jobs:
       after_success:
         - ./.github/travis/success.sh
 
-    - <<: *test_body
-      stage: test  # Holds for all cases below
+    - stage: test  # Holds for all cases below
+      <<: *test_body
       env:
         - MODE=surelog-uhdm
         # ΤODO: add deploy with provider:pages local_dir=/tmp/pages
