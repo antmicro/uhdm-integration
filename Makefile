@@ -115,7 +115,6 @@ uhdm/verilator/coverage: uhdm/verilator/build surelog/ibex-current
 	-(cd build && \
 		../image/bin/verilator --uhdm-ast --cc ./top.uhdm \
 			--uhdm-cov uhdm.cov \
-			--dump-uhdm \
 			--xml-only)
 	python3 gen_coverage_report.py --verilator-uhdm build/uhdm.cov \
 		--output-file build/coverage.out
