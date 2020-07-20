@@ -4,6 +4,9 @@ language: cpp
 # Compiler selection
 compiler:
   - gcc
+cache:
+  ccache: true
+  apt: true
 
 jobs:
   fast_finish: true
@@ -46,6 +49,11 @@ jobs:
 
       after_success:
         - ./.github/travis/success.sh
+
+    - <<: *test_body
+      stage: prepare cache
+      env:
+        - MODE=cache-warmup
 
     - <<: *test_body
       env:
