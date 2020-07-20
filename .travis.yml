@@ -7,14 +7,17 @@ compiler:
 cache:
   ccache: true
   apt: true
+stages:
+  - prepare cache
+  - test
 
 jobs:
   fast_finish: true
   include:
-    - stage: prepare cache
-      &test_body
+    - &test_body
+      stage: test
       env:
-        - MODE=cache-warmup  # Override for each test
+        - TEST_CASE=tests/onenet TARGET=uhdm/verilator/test-ast  # Override for each test
       addons:
         apt:
           sources:
@@ -51,15 +54,15 @@ jobs:
       after_success:
         - ./.github/travis/success.sh
 
-    - stage: test  # Holds for all cases below
-      <<: *test_body
+    - <<: *test_body
+      stage: prepare cache
       env:
-        - MODE=surelog-uhdm
-        # ΤODO: add deploy with provider:pages local_dir=/tmp/pages
+        - MODE=cache-warmup
 
     - <<: *test_body
       env:
-        - TEST_CASE=tests/onenet TARGET=uhdm/verilator/test-ast
+        - MODE=surelog-uhdm
+        # ΤODO: add deploy with provider:pages local_dir=/tmp/pages
 
     - <<: *test_body
       env:
