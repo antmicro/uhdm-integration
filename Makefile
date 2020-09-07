@@ -260,11 +260,11 @@ uhdm/yosys/test-synth: surelog/parse-synth yosys/yosys
 #### SIMULATION  (YOSYS) ####
 #############################
 
-IBEX_TOP_DIR := ../tests/ibex/top
+IBEX_TESTBENCH_DIR := ../tests/ibex/tb
 SIM_FILE ?= ibex_alu.sv
 SIM_FILES := $(IBEX_DIR)/$(SIM_FILE)
 ifeq ($(SIM_FILE),ibex_alu.sv)
-	SIM_FILES := $(SIM_FILES) $(IBEX_TOP_DIR)/ibex_alu_top.sv $(IBEX_DIR)/ibex_pkg.sv
+	SIM_FILES := $(SIM_FILES) $(IBEX_TESTBENCH_DIR)/ibex_alu_tb.sv $(IBEX_DIR)/ibex_pkg.sv
 endif
 
 surelog/parse-sim: surelog
