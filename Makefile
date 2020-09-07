@@ -288,4 +288,4 @@ uhdm/yosys/test-sim: surelog/parse-sim yosys/yosys
 	yosys/yosys \
 		-p 'read_uhdm -debug build/top.uhdm' \
 		-p 'prep -auto-top' \
-		-p 'sim -clock clk -rstlen 10 -vcd dump.vcd'
+		-p 'sim -clock clk_i -rstlen 10 -vcd dump.vcd'
