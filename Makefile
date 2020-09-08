@@ -265,6 +265,8 @@ SIM_FILE ?= ibex_alu.sv
 SIM_FILES := $(IBEX_DIR)/$(SIM_FILE)
 ifeq ($(SIM_FILE),ibex_alu.sv)
 	SIM_FILES := $(SIM_FILES) $(IBEX_TESTBENCH_DIR)/ibex_alu_tb.sv $(IBEX_DIR)/ibex_pkg.sv
+else ifeq ($(SIM_FILE),ibex_decoder.sv)
+	SIM_FILES := $(SIM_FILES) $(IBEX_TESTBENCH_DIR)/ibex_decoder_tb.sv $(IBEX_DIR)/ibex_pkg.sv
 endif
 
 surelog/parse-sim: surelog
