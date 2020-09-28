@@ -26,9 +26,73 @@ module ibex_alu_tb (
         end
     end
 
-    assign operator_i          = ibex_pkg::ALU_AND;
-    assign operand_a_i         = 32'hFFFFFF00;
-    assign operand_b_i         = 32'h00FFFFFF;
+    integer cycle = 0;
+    always_ff @(posedge clk_i) begin
+        cycle++;
+        unique case (cycle)
+          1: begin
+                operator_i  = ibex_pkg::ALU_ADD;
+                operand_a_i = 32'd32;
+                operand_b_i = 32'd64;
+             end
+          2: begin
+                operator_i  = ibex_pkg::ALU_SUB;
+                operand_a_i = 32'd512;
+                operand_b_i = 32'd256;
+             end
+          3: begin
+                operator_i  = ibex_pkg::ALU_XOR;
+                operand_a_i = 32'hFFFFFF00;
+                operand_b_i = 32'h00FFFFFF;
+             end
+          4: begin
+                operator_i  = ibex_pkg::ALU_OR;
+                operand_a_i = 32'hFFF00F00;
+                operand_b_i = 32'h00F00FFF;
+             end
+          5: begin
+                operator_i  = ibex_pkg::ALU_AND;
+                operand_a_i = 32'hFFFFFF00;
+                operand_b_i = 32'h00FFFFFF;
+             end
+          6: begin
+                operator_i  = ibex_pkg::ALU_XNOR;
+                operand_a_i = 32'hFFFFFF00;
+                operand_b_i = 32'h00FFFFFF;
+             end
+          7: begin
+                operator_i  = ibex_pkg::ALU_ORN;
+                operand_a_i = 32'hFFF00F00;
+                operand_b_i = 32'h00F00FFF;
+             end
+          8: begin
+                operator_i  = ibex_pkg::ALU_ANDN;
+                operand_a_i = 32'hFFFFFF00;
+                operand_b_i = 32'h00FFFFFF;
+             end
+          9: begin
+                operator_i  = ibex_pkg::ALU_LT;
+                operand_a_i = 32'd32;
+                operand_b_i = 32'd64;
+             end
+          10: begin
+                operator_i  = ibex_pkg::ALU_GE;
+                operand_a_i = 32'd32;
+                operand_b_i = 32'd32;
+             end
+          11: begin
+                operator_i  = ibex_pkg::ALU_EQ;
+                operand_a_i = 32'd32;
+                operand_b_i = 32'd32;
+             end
+          12: begin
+                operator_i  = ibex_pkg::ALU_NE;
+                operand_a_i = 32'd32;
+                operand_b_i = 32'd64;
+             end
+        endcase;
+    end
+
     assign instr_first_cycle_i = 0;
     assign multdiv_sel_i       = 0;
 
