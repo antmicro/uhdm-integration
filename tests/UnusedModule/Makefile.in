@@ -1,0 +1,6 @@
+TOP_FILE := tests/UnusedModule/top.sv
+MAIN_FILE := tests/UnusedModule/main.cpp
+YOSYS_SCRIPT := tests/UnusedModule/yosys_script
+TOP_MODULE := top
+VERILATED_BIN := Vwork_$(TOP_MODULE)
+TOP_MAKEFILE := $(VERILATED_BIN).mk
