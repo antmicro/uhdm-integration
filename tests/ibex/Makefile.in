@@ -53,12 +53,30 @@ uhdm/yosys/synth-ibex: yosys/yosys surelog/parse-ibex
 	(cd ${root_dir}/build && \
 	${YOSYS_BIN} \
 		     -p 'read_uhdm ${TOP_UHDM}' \
-		     -p 'read_verilog ${IBEX_INCLUDE} -overwrite -sv ${IBEX_SOURCES_SKIPPED}' \
+		     -p 'read_verilog ${IBEX_INCLUDE} -sv ${IBEX_SOURCES_SKIPPED}' \
 		     -p 'chparam -set SRAMInitFile "${root_dir}/led.vmem" top_artya7' \
 		     -p 'synth_xilinx -iopad -family xc7' \
 		     -p 'write_edif -pvector bra ${root_dir}/build/top_artya7.edif' \
-		     -p 'write_json ${root_dir}/top.json')
-	#vivado -nojournal -log ${root_dir}/top.log -mode batch -source ${root_dir}/build.tcl)
+		     -p 'write_json ${root_dir}/build/top.json' \
+		     -p 'write_verilog ${root_dir}/build/top.v')
+
+uhdm/yosys/synth-ibex-build: uhdm/yosys/synth-ibex
+	(cd ${root_dir}/build && \
+		vivado -nojournal -log ${root_dir}/top.log -mode batch -source ${root_dir}/build.tcl)
+
+uhdm/yosys/synth-ibex-sv: yosys/yosys
+	mkdir -p ${root_dir}/build-sv
+	(cd ${root_dir}/build-sv && \
+	${YOSYS_BIN} \
+		     -p 'read_verilog ${IBEX_INCLUDE} -sv ${IBEX_PKG_SOURCES} ${IBEX_SOURCES} ${IBEX_SOURCES_SKIPPED}' \
+		     -p 'chparam -set SRAMInitFile "${root_dir}/led.vmem" top_artya7' \
+		     -p 'synth_xilinx -iopad -family xc7' \
+		     -p 'write_edif -pvector bra ${root_dir}/build/top_artya7.edif' \
+		     -p 'write_json ${root_dir}/build-sv/top.json' \
+		     -p 'write_verilog ${root_dir}/build-sv/top.v')
+
+compare: uhdm/yosys/synth-ibex uhdm/yosys/synth-ibex-sv
+	diff ${root_dir}/build/top.v ${root_dir}/build-sv/top.v
 
 #############################
 #### SIMULATION  (YOSYS) ####
