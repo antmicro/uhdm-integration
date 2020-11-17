@@ -58,7 +58,7 @@ uhdm/yosys/synth-ibex: yosys/yosys surelog/parse-ibex
 		     -p 'synth_xilinx -iopad -family xc7' \
 		     -p 'write_edif -pvector bra ${root_dir}/build/top_artya7.edif' \
 		     -p 'write_json ${root_dir}/build/top.json' \
-		     -p 'write_verilog ${root_dir}/build/top.v')
+		     -p 'write_verilog -noattr ${root_dir}/build/top.v')
 
 uhdm/yosys/synth-ibex-build: uhdm/yosys/synth-ibex
 	(cd ${root_dir}/build && \
@@ -73,10 +73,10 @@ uhdm/yosys/synth-ibex-sv: yosys/yosys
 		     -p 'synth_xilinx -iopad -family xc7' \
 		     -p 'write_edif -pvector bra ${root_dir}/build/top_artya7.edif' \
 		     -p 'write_json ${root_dir}/build-sv/top.json' \
-		     -p 'write_verilog ${root_dir}/build-sv/top.v')
+		     -p 'write_verilog -noattr ${root_dir}/build-sv/top.v')
 
 compare: uhdm/yosys/synth-ibex uhdm/yosys/synth-ibex-sv
-	diff ${root_dir}/build/top.v ${root_dir}/build-sv/top.v
+	python diff_verilog.py
 
 #############################
 #### SIMULATION  (YOSYS) ####
