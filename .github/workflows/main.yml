@@ -151,3 +151,10 @@ jobs:
       with:
         name: top_artya7.edif
         path: build/top_artya7.edif
+
+    - name: Compare post-sythesis verilog files for UHDM and SV.
+      run: ./.github/ci.sh
+      env:
+        TEST_CASE: tests/ibex
+        TARGET: compare
+
