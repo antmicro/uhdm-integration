@@ -152,9 +152,14 @@ jobs:
         name: top_artya7.edif
         path: build/top_artya7.edif
 
+    - name: Synthesize Ibex using SystemVerilog
+      run: ./.github/ci.sh
+      env:
+        TEST_CASE: tests/ibex
+        TARGET: uhdm/yosys/synth-ibex-sv
+
     - name: Compare post-sythesis verilog files for UHDM and SV.
       run: ./.github/ci.sh
       env:
         TEST_CASE: tests/ibex
         TARGET: compare
-
