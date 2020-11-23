@@ -24,7 +24,6 @@ def parse_file(file_path):
                     current_module_name = module_name
                 current_module_name = current_module_name.replace(' ', '')
                 current_module_name = current_module_name.replace('\\', '')
-                #print(f"{current_module_name} -> {module_name}")
 
 
             if current_module_name != "":
@@ -50,8 +49,13 @@ for key in sorted(sv.keys()):
     with open(f'compare/sv_{key}.v', 'w') as f:
         f.writelines(sv[key])
 
-for key1, key2 in zip(sorted(surelog.keys()), sorted(sv.keys())):
-    if (key1 != key2):
-        print(f"Difference in keys!: {key1}   ->   {key2}")
-    subprocess.run(["diff", "-y", "--color=always", "--suppress-common-lines", f"compare/surelog_{key1}.v", f"compare/sv_{key2}.v"])
+for key in surelog.keys():
+    if key in sv.keys():
+        subprocess.run(["diff", "-y", "--color=always", "--suppress-common-lines", f"compare/surelog_{key}.v", f"compare/sv_{key}.v"])
+        sv.pop(key)
+    else:
+        print(f"Additional module in Surelog: {key}")
+
+for key in sv.keys():
+    print(f"Additional module in SystemVerilog: {key}")
 
