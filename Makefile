@@ -5,14 +5,11 @@ root_dir:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 SURELOG_BIN = ${root_dir}/image/bin/surelog
 YOSYS_BIN = ${root_dir}/image/bin/yosys
-VERILATOR = ${root_dir}/image/bin/verilator
+VERILATOR_BIN = ${root_dir}/image/bin/verilator
 COVARAGE_REPORT = ${root_dir}/build/coverage
 TOP_UHDM = ${root_dir}/build/top.uhdm
 
 include $(TEST)/Makefile.in
-
-tests-matrix:
-	@for TEST in $(TESTS); do echo "- tests/$$TEST"; done
 
 list:
 	@echo "Available tests:"
@@ -46,7 +43,6 @@ clean::
 
 vcd:
 	gtkwave build/dump.vcd &>/dev/null &
-
 
 # ------------ Surelog ------------
 
@@ -94,60 +90,56 @@ uhdm/cleanall: uhdm/clean
 	$(MAKE) -C yosys clean
 	$(MAKE) -C vcddiff clean
 
-
-uhdm/verilator/build: image/bin/uhdm-dump image/bin/verilator
-
-uhdm/verilator/get-ast: uhdm/verilator/build
+uhdm/verilator/get-ast: image/bin/verilator
 	mkdir -p build
 	(cd build && \
-		../image/bin/verilator --cc ../$(TOP_FILE) \
+		$(VERILATOR_BIN) --cc ../$(TOP_FILE) \
 			--exe ../$(MAIN_FILE) --debug --xml-only)
 
-uhdm/verilator/ast-xml: uhdm/verilator/build surelog/parse
+uhdm/verilator/ast-xml: image/bin/verilator surelog/parse
 	mkdir -p build
 	(cd build && \
-		../image/bin/verilator --uhdm-ast --cc ./top.uhdm \
+		$(VERILATOR_BIN) --uhdm-ast --cc ./top.uhdm \
 			--top-module work_$(TOP_MODULE) \
 			--dump-uhdm \
 			--exe ../$(MAIN_FILE) --xml-only --debug)
 
-uhdm/verilator/test-ast: uhdm/verilator/build surelog/parse
+uhdm/verilator/test-ast: image/bin/verilator surelog/parse
 	mkdir -p build
 	(cd build && \
-		../image/bin/verilator --uhdm-ast --cc ./top.uhdm \
+		$(VERILATOR_BIN) --uhdm-ast --cc ./top.uhdm \
 			--top-module work_$(TOP_MODULE) \
 			--dump-uhdm \
 			--exe ../$(MAIN_FILE) --trace && \
 		 make -j -C obj_dir -f $(TOP_MAKEFILE) $(VERILATED_BIN) && \
 		 obj_dir/$(VERILATED_BIN))
 
-uhdm/verilator/coverage: uhdm/verilator/build
+uhdm/verilator/coverage: image/bin/verilator
 	mkdir -p build
 	-(cd build && \
-		../image/bin/verilator --uhdm-ast --cc ./top.uhdm \
+		$(VERILATOR_BIN) --uhdm-ast --cc ./top.uhdm \
 			--uhdm-cov uhdm.cov \
 			--xml-only)
 	python3 gen_coverage_report.py --verilator-uhdm build/uhdm.cov \
 		--output-file build/coverage.out
 
-uhdm/yosys/test-ast: yosys/yosys surelog/parse
+uhdm/yosys/test-ast: image/bin/yosys surelog/parse
 	mkdir -p build
 	(cd build && \
 		${YOSYS_BIN} -s ../$(YOSYS_SCRIPT))
 
-uhdm/yosys/verilate-ast: uhdm/yosys/test-ast uhdm/verilator/build
+uhdm/yosys/verilate-ast: uhdm/yosys/test-ast image/bin/verilator
 	(cd build && \
-		../image/bin/verilator --cc ./yosys.sv \
+		$(VERILATOR_BIN) --cc ./yosys.sv \
 			--top-module \$(TOP_MODULE) \
 			--exe ../$(MAIN_FILE) --trace && \
 		 make -j -C obj_dir -f $(TOP_MAKEFILE) $(VERILATED_BIN) && \
 		 obj_dir/$(VERILATED_BIN))
 
 
-uhdm/vcddiff: vcddiff/vcddiff
-	$(MAKE) uhdm/verilator/test-ast
+uhdm/vcddiff: image/bin/vcddiff uhdm/verilator/test-ast
 	mv build/dump.vcd build/dump_verilator.vcd
 	rm -rf build/obj_dir
 	$(MAKE) uhdm/yosys/verilate-ast
 	mv build/dump.vcd build/dump_yosys.vcd
-	vcddiff/vcddiff build/dump_yosys.vcd build/dump_verilator.vcd
+	image/bin/vcddiff build/dump_yosys.vcd build/dump_verilator.vcd
