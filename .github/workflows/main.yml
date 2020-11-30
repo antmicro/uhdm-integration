@@ -31,15 +31,16 @@ jobs:
     - name: Build binaries
       run: |
         make -j$(nproc) prep
-        mkdir -p output
-        mv image output/
+        # By default actions/upload-artifact@v2 do not preserve file permissions
+        # tar directory to workaround this issue
+        # See https://github.com/actions/upload-artifact/issues/38
+        tar -cvf binaries.tar images
 
     - name: Upload binaries
       uses: actions/upload-artifact@v2
       with:
         name: binaries
-        path: output
-
+        path: binaries.tar
 
   generate-matrix:
     runs-on: ubuntu-latest
@@ -97,6 +98,10 @@ jobs:
       with:
         name: binaries
 
+    # See https://github.com/actions/upload-artifact/issues/38
+    - name: Extract
+      run: tar -xf binaries.tar
+
     - name: Update binaries timestamp
       run: |
         cd image
@@ -136,6 +141,10 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: binaries
+
+    # See https://github.com/actions/upload-artifact/issues/38
+    - name: Extract
+      run: tar -xf binaries.tar
 
     - name: Update binaries timestamp
       run: |
@@ -186,11 +195,9 @@ jobs:
         cd image
         find . -type f -exec touch {} +
 
-    - name: Print image files
-      run: |
-        ls -la .
-        ls -la image
-        ls -la image/bin
+    # See https://github.com/actions/upload-artifact/issues/38
+    - name: Extract
+      run: tar -xf binaries.tar
 
     - name: Build & Test
       run: |
