@@ -64,10 +64,13 @@ uhdm/verilator/test-ast: image/bin/verilator surelog/parse
 			--exe $(MAIN_FILE) --trace && \
 		 make -j -C obj_dir -f $(TOP_MAKEFILE) $(VERILATED_BIN) && \
 		 obj_dir/$(VERILATED_BIN))
-	cp $(root_dir)/build/dump.vcd $(root_dir)/build/dump_verilator.vcd
+	mv $(root_dir)/build/dump.vcd $(root_dir)/build/dump_verilator.vcd
 
 uhdm/yosys/test-ast: image/bin/yosys surelog/parse clean-build
 	(cd $(root_dir)/build && ${YOSYS_BIN} -s $(YOSYS_SCRIPT))
+
+surelog/regression: image/bin/surelog
+	(cd Surelog && $(MAKE) regression)
 
 # ------------ Test helper targets ------------
 
@@ -83,7 +86,7 @@ uhdm/yosys/verilate-ast: uhdm/yosys/test-ast image/bin/verilator
 			--exe $(MAIN_FILE) --trace && \
 		 make -j -C obj_dir -f $(TOP_MAKEFILE) $(VERILATED_BIN) && \
 		 obj_dir/$(VERILATED_BIN))
-	cp $(root_dir)/build/dump.vcd $(root_dir)/build/dump_yosys.vcd
+	mv $(root_dir)/build/dump.vcd $(root_dir)/build/dump_yosys.vcd
 
 # ------------ Coverage targets ------------
 
