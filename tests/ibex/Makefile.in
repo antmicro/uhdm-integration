@@ -28,29 +28,23 @@ IBEX_SOURCES_SKIPPED = \
 		grep '${SKIP_SOURCES}' | \
                 sed 's@^..@${IBEX_BUILD}@')
 
-surelog/parse-ibex: image/bin/surelog
-	mkdir -p ${root_dir}/build
+surelog/parse-ibex: image/bin/surelog clean-build
 	virtualenv ${root_dir}/venv-ibex
 	(. ${root_dir}/venv-ibex/bin/activate && \
 		cd ${IBEX} && pip install -r python-requirements.txt && \
 		fusesoc --cores-root=. run --target=synth --setup lowrisc:ibex:top_artya7 --part xc7a35ticsg324-1L && \
+		cd $(root_dir)/build && \
 	${root_dir}/image/bin/surelog -parse -sverilog \
 		-v ${root_dir}/yosys/techlibs/xilinx/cells_xtra_surelog.v \
 		$(IBEX_INCLUDE) \
 		$(IBEX_SOURCES) ${IBEX_PKG_SOURCES} && \
-	cp ${IBEX}/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm)
+	cp ${root_dir}/build/slpp_all/surelog.uhdm ${TOP_UHDM})
 
-uhdm/yosys/coverage: image/bin/yosys surelog/parse-ibex
-	mkdir -p build
-	-(cd ${IBEX}/slpp_all && \
-		${YOSYS_BIN} \
-		-p "read_uhdm -report ${COVARAGE_REPORT} ${TOP_UHDM}")
 
 #############################
 ####      SYNTHESIS      ####
 #############################
 uhdm/yosys/synth-ibex: image/bin/yosys surelog/parse-ibex
-	mkdir -p ${root_dir}/build
 	(cd ${root_dir}/build && \
 	${YOSYS_BIN} \
 		     -p 'read_uhdm ${TOP_UHDM}' \
