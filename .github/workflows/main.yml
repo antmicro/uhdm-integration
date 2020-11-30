@@ -41,7 +41,7 @@ jobs:
         path: output
 
 
-  generate_matrix:
+  generate-matrix:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.generate.outputs.matrix }}
@@ -62,7 +62,7 @@ jobs:
 
   tests:
     runs-on: ubuntu-latest
-    needs: [build-binaries, generate_matrix]
+    needs: [build-binaries, generate-matrix]
     strategy:
       matrix:
         TEST_CASE: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
