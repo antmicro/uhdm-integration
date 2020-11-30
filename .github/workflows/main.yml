@@ -47,18 +47,23 @@ jobs:
       - name: Checkout master
         uses: actions/checkout@v2
 
+      - uses: actions/setup-python@v2
+        with:
+           python-version: '3.x'
+
       - name: Generate matrix
         id: generate
         run: |
-          matrix="$(make list | grep '-')"
+          matrix="$(python list.py -d tests)"
           echo "::set-output name=matrix::$matrix"
+          echo "Matrix: $matrix"
 
   tests:
     runs-on: ubuntu-latest
     needs: [build-binaries, generate_matrix]
     strategy:
       matrix:
-        TEST_CASE: ${{ needs.generate-matrix.outputs.matrix }}
+        TEST_CASE: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
         TARGET:
           - uhdm/yosys/test-ast
           - uhdm/verilator/test-ast
