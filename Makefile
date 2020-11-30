@@ -6,6 +6,7 @@ root_dir:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 SURELOG_BIN = ${root_dir}/image/bin/surelog
 YOSYS_BIN = ${root_dir}/image/bin/yosys
 VERILATOR_BIN = ${root_dir}/image/bin/verilator
+VCDDIFF_BIN = ${root_dir}/image/bin/vcddiff
 COVARAGE_REPORT = ${root_dir}/build/coverage
 TOP_UHDM = ${root_dir}/build/top.uhdm
 
@@ -41,17 +42,20 @@ image/bin/surelog: Surelog/third_party/UHDM/.gitpatch
 
 image/bin/vcddiff:
 	$(MAKE) -C vcddiff PREFIX=$(root_dir)/image
-	mkdir -p image/bin
-	cp -p vcddiff/vcddiff image/bin/vcddiff
+	mkdir -p $(root_dir)/image/bin
+	cp -p vcddiff/vcddiff $(VCDDIFF_BIN)
 
 prep: image/bin/verilator image/bin/yosys image/bin/surelog image/bin/vcddiff
 
-clean::
-	rm -rf build
-	rm -rf image
+clean-build:
+	rm -rf $(root_dir)/build
+	mkdir -p $(root_dir)/build
+
+clean:: clean-build
+	rm -rf $(root_dir)/image
 
 vcd:
-	gtkwave build/dump.vcd &>/dev/null &
+	gtkwave $(root_dir)/build/dump.vcd &>/dev/null &
 
 # ------------ Surelog ------------
 
@@ -59,28 +63,24 @@ vcd:
 surelog/regression: image/bin/surelog
 	(cd Surelog && $(MAKE) regression)
 
-surelog/parse: image/bin/surelog
-	mkdir -p ${root_dir}/build
+surelog/parse: image/bin/surelog clean-build
 	(cd ${root_dir}/build && \
 		${SURELOG_BIN} -parse -sverilog -d coveruhdm $(TOP_FILE))
 	cp ${root_dir}/build/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm
 
-surelog/parse-earlgrey: image/bin/surelog
-	mkdir -p ${root_dir}/build
+surelog/parse-earlgrey: image/bin/surelog clean-build
 	(cd ${root_dir}/Surelog/third_party/tests/Earlgrey_0_1/sim-icarus && \
 		${SURELOG_BIN} -f Earlgrey_0_1.sl \
 	)
 	cp ${root_dir}/Surelog/third_party/tests/Earlgrey_0_1/sim-icarus/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm
 
-surelog/ibex-verilator: image/bin/surelog
-	mkdir -p ${root_dir}/build
+surelog/ibex-verilator: image/bin/surelog clean-build
 	-(cd ${root_dir}/Surelog/third_party/tests/Earlgrey_Verilator_0_1/sim-verilator && \
 		${SURELOG_BIN} -f Earlgrey_Verilator_0_1.sl \
 	)
 	cp ${root_dir}/Surelog/third_party/tests/Earlgrey_Verilator_0_1/sim-verilator/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm
 
-surelog/ibex-simplesystem: image/bin/surelog
-	mkdir -p ${root_dir}/build
+surelog/ibex-simplesystem: image/bin/surelog clean-build
 	(cd ${root_dir}/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/sim-verilator \
 		${SURELOG_BIN} +define+VERILATOR \
 			-f lowrisc_ibex_ibex_simple_system_0.vc \
@@ -99,54 +99,48 @@ uhdm/cleanall: uhdm/clean
 	$(MAKE) -C yosys clean
 	$(MAKE) -C vcddiff clean
 
-uhdm/verilator/get-ast: image/bin/verilator
-	mkdir -p build
-	(cd build && \
-		$(VERILATOR_BIN) --cc ../$(TOP_FILE) \
-			--exe ../$(MAIN_FILE) --debug --xml-only)
+uhdm/verilator/get-ast: image/bin/verilator clean-build
+	(cd $(root_dir)/build && \
+		$(VERILATOR_BIN) --cc $(TOP_FILE) \
+			--exe $(MAIN_FILE) --debug --xml-only)
 
 uhdm/verilator/ast-xml: image/bin/verilator surelog/parse
-	mkdir -p build
-	(cd build && \
+	(cd $(root_dir)/build && \
 		$(VERILATOR_BIN) --uhdm-ast --cc ./top.uhdm \
 			--top-module work_$(TOP_MODULE) \
 			--dump-uhdm \
-			--exe ../$(MAIN_FILE) --xml-only --debug)
+			--exe $(MAIN_FILE) --xml-only --debug)
 
 uhdm/verilator/test-ast: image/bin/verilator surelog/parse
-	mkdir -p build
-	(cd build && \
+	(cd $(root_dir)/build && \
 		$(VERILATOR_BIN) --uhdm-ast --cc ./top.uhdm \
 			--top-module work_$(TOP_MODULE) \
 			--dump-uhdm \
 			--exe $(MAIN_FILE) --trace && \
 		 make -j -C obj_dir -f $(TOP_MAKEFILE) $(VERILATED_BIN) && \
 		 obj_dir/$(VERILATED_BIN))
-	cp build/dump.vcd build/dump_verilator.vcd
+	cp $(root_dir)/build/dump.vcd $(root_dir)/build/dump_verilator.vcd
 
-uhdm/verilator/coverage: image/bin/verilator
-	mkdir -p build
-	-(cd build && \
+uhdm/verilator/coverage: image/bin/verilator clean-build
+	-(cd $(root_dir)/build && \
 		$(VERILATOR_BIN) --uhdm-ast --cc ./top.uhdm \
 			--uhdm-cov uhdm.cov \
 			--xml-only)
-	python3 gen_coverage_report.py --verilator-uhdm build/uhdm.cov \
-		--output-file build/coverage.out
+	python3 gen_coverage_report.py --verilator-uhdm $(root_dir)/build/uhdm.cov \
+		--output-file $(root_dir)/build/coverage.out
 
-uhdm/yosys/test-ast: image/bin/yosys surelog/parse
-	mkdir -p build
-	(cd build && \
-		${YOSYS_BIN} -s $(YOSYS_SCRIPT))
+uhdm/yosys/test-ast: image/bin/yosys surelog/parse clean-build
+	(cd $(root_dir)/build && ${YOSYS_BIN} -s $(YOSYS_SCRIPT))
 
 uhdm/yosys/verilate-ast: uhdm/yosys/test-ast image/bin/verilator
-	(cd build && \
+	(cd $(root_dir)/build && \
 		$(VERILATOR_BIN) --cc ./yosys.sv \
 			--top-module \$(TOP_MODULE) \
 			--exe $(MAIN_FILE) --trace && \
 		 make -j -C obj_dir -f $(TOP_MAKEFILE) $(VERILATED_BIN) && \
 		 obj_dir/$(VERILATED_BIN))
-	cp build/dump.vcd build/dump_yosys.vcd
+	cp $(root_dir)/build/dump.vcd $(root_dir)/build/dump_yosys.vcd
 
 
 uhdm/vcddiff: image/bin/vcddiff uhdm/verilator/test-ast uhdm/yosys/verilate-ast
-	image/bin/vcddiff build/dump_yosys.vcd build/dump_verilator.vcd
+	$(VCDDIFF_BIN) $(root_dir)/build/dump_yosys.vcd $(root_dir)/build/dump_verilator.vcd
