@@ -9,7 +9,16 @@ VERILATOR_BIN = ${root_dir}/image/bin/verilator
 COVARAGE_REPORT = ${root_dir}/build/coverage
 TOP_UHDM = ${root_dir}/build/top.uhdm
 
+TEST_DIR := $(root_dir)/$(TEST)
+MAIN_FILE := $(TEST_DIR)/main.cpp
+YOSYS_SCRIPT := $(TEST_DIR)/yosys_script
+
+# this include should set $(TOP_FILE) and $(TOP_MODULE) variables
 include $(TEST)/Makefile.in
+
+# this variables uses $(TOP_MODULE) that is set in included Makefile.in
+VERILATED_BIN := Vwork_$(TOP_MODULE)
+TOP_MAKEFILE := $(VERILATED_BIN).mk
 
 list:
 	@echo "Available tests:"
@@ -53,7 +62,7 @@ surelog/regression: image/bin/surelog
 surelog/parse: image/bin/surelog
 	mkdir -p ${root_dir}/build
 	(cd ${root_dir}/build && \
-		${SURELOG_BIN} -parse -sverilog -d coveruhdm ../$(TOP_FILE))
+		${SURELOG_BIN} -parse -sverilog -d coveruhdm $(TOP_FILE))
 	cp ${root_dir}/build/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm
 
 surelog/parse-earlgrey: image/bin/surelog
@@ -110,9 +119,10 @@ uhdm/verilator/test-ast: image/bin/verilator surelog/parse
 		$(VERILATOR_BIN) --uhdm-ast --cc ./top.uhdm \
 			--top-module work_$(TOP_MODULE) \
 			--dump-uhdm \
-			--exe ../$(MAIN_FILE) --trace && \
+			--exe $(MAIN_FILE) --trace && \
 		 make -j -C obj_dir -f $(TOP_MAKEFILE) $(VERILATED_BIN) && \
 		 obj_dir/$(VERILATED_BIN))
+	cp build/dump.vcd build/dump_verilator.vcd
 
 uhdm/verilator/coverage: image/bin/verilator
 	mkdir -p build
@@ -126,20 +136,17 @@ uhdm/verilator/coverage: image/bin/verilator
 uhdm/yosys/test-ast: image/bin/yosys surelog/parse
 	mkdir -p build
 	(cd build && \
-		${YOSYS_BIN} -s ../$(YOSYS_SCRIPT))
+		${YOSYS_BIN} -s $(YOSYS_SCRIPT))
 
 uhdm/yosys/verilate-ast: uhdm/yosys/test-ast image/bin/verilator
 	(cd build && \
 		$(VERILATOR_BIN) --cc ./yosys.sv \
 			--top-module \$(TOP_MODULE) \
-			--exe ../$(MAIN_FILE) --trace && \
+			--exe $(MAIN_FILE) --trace && \
 		 make -j -C obj_dir -f $(TOP_MAKEFILE) $(VERILATED_BIN) && \
 		 obj_dir/$(VERILATED_BIN))
+	cp build/dump.vcd build/dump_yosys.vcd
 
 
-uhdm/vcddiff: image/bin/vcddiff uhdm/verilator/test-ast
-	mv build/dump.vcd build/dump_verilator.vcd
-	rm -rf build/obj_dir
-	$(MAKE) uhdm/yosys/verilate-ast
-	mv build/dump.vcd build/dump_yosys.vcd
+uhdm/vcddiff: image/bin/vcddiff uhdm/verilator/test-ast uhdm/yosys/verilate-ast
 	image/bin/vcddiff build/dump_yosys.vcd build/dump_verilator.vcd
