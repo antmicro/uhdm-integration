@@ -56,7 +56,7 @@ jobs:
       - name: Generate matrix
         id: generate
         run: |
-          matrix="$(python list.py -d tests)"
+          matrix="$(python list.py -d tests -s ibex yosys synthesis)"
           echo "::set-output name=matrix::$matrix"
           echo "Matrix: $matrix"
 
