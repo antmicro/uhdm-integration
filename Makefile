@@ -4,83 +4,77 @@ TEST ?= tests/onenet
 root_dir:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 SURELOG_BIN = ${root_dir}/image/bin/surelog
-YOSYS_BIN = ${root_dir}/yosys/yosys
+YOSYS_BIN = ${root_dir}/image/bin/yosys
 VERILATOR = ${root_dir}/image/bin/verilator
 COVARAGE_REPORT = ${root_dir}/build/coverage
 TOP_UHDM = ${root_dir}/build/top.uhdm
 
 include $(TEST)/Makefile.in
 
+tests-matrix:
+	@for TEST in $(TESTS); do echo "- tests/$$TEST"; done
+
 list:
 	@echo "Available tests:"
 	@for TEST in $(TESTS); do echo "- tests/$$TEST"; done
 	@echo "Please specify the TEST variable."
 
-verilator/configure: verilator/configure.ac
-	(cd verilator && autoconf)
+Surelog/third_party/UHDM/.gitpatch: ${root_dir}/UHDM.patch
+	(cd ${root_dir}/Surelog/third_party/UHDM && git apply ${root_dir}/UHDM.patch) && touch $@
 
-verilator/Makefile: verilator/configure
-	(cd verilator && ./configure --prefix=$(PWD)/image)
+image/bin/verilator: verilator/configure.ac image/bin/surelog
+	(cd ${root_dir}/verilator && autoconf && ./configure --prefix=$(root_dir)/image && \
+		$(MAKE) install)
 
-verilator/bin/verilator_bin: verilator/Makefile uhdm/build
-	$(MAKE) -C verilator
+image/bin/yosys: yosys/Makefile image/bin/surelog
+	(cd ${root_dir}/yosys && $(MAKE) PREFIX=$(root_dir)/image install)
 
-image/bin/verilator: verilator/bin/verilator_bin
-	$(MAKE) -C verilator install
+image/bin/surelog: Surelog/third_party/UHDM/.gitpatch
+	(cd ${root_dir}/Surelog && \
+		$(MAKE) PREFIX=${root_dir}/image release install)
 
-yosys/yosys: yosys/Makefile uhdm/build
-	(cd yosys && \
-		$(MAKE))
+image/bin/vcddiff:
+	$(MAKE) -C vcddiff PREFIX=$(root_dir)/image
+	mkdir -p image/bin
+	cp -p vcddiff/vcddiff image/bin/vcddiff
 
-prep: image/bin/verilator yosys/yosys
+prep: image/bin/verilator image/bin/yosys image/bin/surelog image/bin/vcddiff
 
 clean::
 	rm -rf build
+	rm -rf image
 
 vcd:
 	gtkwave build/dump.vcd &>/dev/null &
 
-build-verilator:
-	(cd verilator/src && make ../bin/verilator_bin)
-
-veri: build-verilator image/bin/verilator
-
-vcddiff/vcddiff:
-	$(MAKE) -C vcddiff
 
 # ------------ Surelog ------------
-Surelog/third_party/UHDM/.gitpatch: ${root_dir}/UHDM.patch
-	(cd Surelog/third_party/UHDM && git apply ${root_dir}/UHDM.patch) && touch $@
 
-surelog: Surelog/third_party/UHDM/.gitpatch
-	(cd Surelog && \
-		$(MAKE) PREFIX=${root_dir}/image release install)
 
-surelog/regression: surelog
-	(cd Surelog && \
-		$(MAKE) regression)
+surelog/regression: image/bin/surelog
+	(cd Surelog && $(MAKE) regression)
 
-surelog/parse: surelog
+surelog/parse: image/bin/surelog
 	mkdir -p ${root_dir}/build
 	(cd ${root_dir}/build && \
 		${SURELOG_BIN} -parse -sverilog -d coveruhdm ../$(TOP_FILE))
 	cp ${root_dir}/build/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm
 
-surelog/parse-earlgrey: surelog
+surelog/parse-earlgrey: image/bin/surelog
 	mkdir -p ${root_dir}/build
 	(cd ${root_dir}/Surelog/third_party/tests/Earlgrey_0_1/sim-icarus && \
 		${SURELOG_BIN} -f Earlgrey_0_1.sl \
 	)
 	cp ${root_dir}/Surelog/third_party/tests/Earlgrey_0_1/sim-icarus/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm
 
-surelog/ibex-verilator: surelog
+surelog/ibex-verilator: image/bin/surelog
 	mkdir -p ${root_dir}/build
 	-(cd ${root_dir}/Surelog/third_party/tests/Earlgrey_Verilator_0_1/sim-verilator && \
 		${SURELOG_BIN} -f Earlgrey_Verilator_0_1.sl \
 	)
 	cp ${root_dir}/Surelog/third_party/tests/Earlgrey_Verilator_0_1/sim-verilator/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm
 
-surelog/ibex-simplesystem: surelog
+surelog/ibex-simplesystem: image/bin/surelog
 	mkdir -p ${root_dir}/build
 	(cd ${root_dir}/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/sim-verilator \
 		${SURELOG_BIN} +define+VERILATOR \
@@ -100,16 +94,8 @@ uhdm/cleanall: uhdm/clean
 	$(MAKE) -C yosys clean
 	$(MAKE) -C vcddiff clean
 
-uhdm/build: Surelog/third_party/UHDM/.gitpatch
-	mkdir -p ${root_dir}/Surelog/third_party/UHDM/build
-	(cd ${root_dir}/Surelog/third_party/UHDM && cmake \
-		-DCMAKE_INSTALL_PREFIX=$(root_dir)/image \
-		-DCMAKE_BUILD_TYPE=Release \
-		-S . \
-		-B build && cmake --build build && \
-	 $(MAKE) install)
 
-uhdm/verilator/build: uhdm/build image/bin/verilator
+uhdm/verilator/build: image/bin/uhdm-dump image/bin/verilator
 
 uhdm/verilator/get-ast: uhdm/verilator/build
 	mkdir -p build

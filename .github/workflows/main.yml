@@ -6,9 +6,41 @@ on:
 
 jobs:
 
+  build-binaries:
+    runs-on: ubuntu-latest
+    env:
+      CC: gcc-9
+      CXX: g++-9
+
+    steps:
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update -qq
+        sudo apt install -y g++-9 build-essential cmake tclsh ant default-jre swig google-perftools libgoogle-perftools-dev python3 python3-dev uuid uuid-dev tcl-dev flex libfl-dev
+
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - uses: actions/setup-python@v2
+      with:
+         python-version: '3.x'
+
+    - name: Build binaries
+      run: |
+        make -j$(nproc) prep
+
+    - name: Upload binaries
+      uses: actions/upload-artifact@v2
+      with:
+        name: binaries
+        path: image
 
   tests:
     runs-on: ubuntu-latest
+    needs: build-binaries
     strategy:
       matrix:
         TEST_CASE:
@@ -74,6 +106,11 @@ jobs:
       with:
          python-version: '3.x'
 
+    - name: Download binaries
+      uses: actions/download-artifact@v2
+      with:
+        name: binaries
+
     - name: Build & Test
       run: ./.github/ci.sh
       env:
@@ -83,6 +120,7 @@ jobs:
 
   surelog-uhdm:
     runs-on: ubuntu-latest
+    needs: build-binaries
     env:
       CC: gcc-9
       CXX: g++-9
@@ -103,6 +141,11 @@ jobs:
       with:
          python-version: '3.x'
 
+    - name: Download binaries
+      uses: actions/download-artifact@v2
+      with:
+        name: binaries
+
     - name: Build & Test
       run: ./.github/ci.sh
       env:
@@ -111,6 +154,7 @@ jobs:
 
   ibex_synth:
     runs-on: ubuntu-latest
+    needs: build-binaries
     strategy:
       matrix:
         TARGET: [uhdm/yosys/synth-ibex]
@@ -135,6 +179,11 @@ jobs:
     - uses: actions/setup-python@v2
       with:
          python-version: '3.7'
+
+    - name: Download binaries
+      uses: actions/download-artifact@v2
+      with:
+        name: binaries
 
     - name: Build & Test
       run: |
