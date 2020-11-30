@@ -96,6 +96,10 @@ jobs:
       with:
         name: binaries
 
+    - name: Update binaries timestamp
+      run: |
+        find image -type f -exec touch {} +
+
     - name: Build & Test
       run: ./.github/ci.sh
       env:
@@ -130,6 +134,10 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: binaries
+
+    - name: Update binaries timestamp
+      run: |
+        find image -type f -exec touch {} +
 
     - name: Build & Test
       run: ./.github/ci.sh
@@ -169,6 +177,10 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: binaries
+
+    - name: Update binaries timestamp
+      run: |
+        find image -type f -exec touch {} +
 
     - name: Print image files
       run: |
