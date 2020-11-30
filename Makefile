@@ -28,19 +28,15 @@ list:
 
 # ------------ Binaries build targets ------------
 
-Surelog/third_party/UHDM/.gitpatch: ${root_dir}/UHDM.patch
-	(cd ${root_dir}/Surelog/third_party/UHDM && git apply ${root_dir}/UHDM.patch) && touch $@
-
-image/bin/verilator: verilator/configure.ac image/bin/surelog
-	(cd ${root_dir}/verilator && autoconf && ./configure --prefix=$(root_dir)/image && \
-		$(MAKE) install)
+image/bin/verilator: image/bin/surelog
+	(cd ${root_dir}/verilator && autoconf && ./configure --prefix=$(root_dir)/image && $(MAKE) install)
 
 image/bin/yosys: yosys/Makefile image/bin/surelog
 	(cd ${root_dir}/yosys && $(MAKE) PREFIX=$(root_dir)/image install)
 
-image/bin/surelog: Surelog/third_party/UHDM/.gitpatch
-	(cd ${root_dir}/Surelog && \
-		$(MAKE) PREFIX=${root_dir}/image release install)
+image/bin/surelog:
+	(cd ${root_dir}/Surelog/third_party/UHDM && git apply ${root_dir}/UHDM.patch)
+	(cd ${root_dir}/Surelog && $(MAKE) PREFIX=${root_dir}/image release install)
 
 image/bin/vcddiff:
 	$(MAKE) -C vcddiff PREFIX=$(root_dir)/image
@@ -51,7 +47,7 @@ prep: image/bin/verilator image/bin/yosys image/bin/surelog image/bin/vcddiff
 
 # ------------ Test targets ------------
 
-uhdm/vcddiff: image/bin/vcddiff uhdm/verilator/test-ast uhdm/yosys/verilate-ast
+uhdm/vcddiff: clean-build image/bin/vcddiff uhdm/verilator/test-ast uhdm/yosys/verilate-ast
 	$(VCDDIFF_BIN) $(root_dir)/build/dump_yosys.vcd $(root_dir)/build/dump_verilator.vcd
 
 uhdm/verilator/test-ast: image/bin/verilator surelog/parse
@@ -72,7 +68,7 @@ uhdm/yosys/test-ast: image/bin/yosys surelog/parse clean-build
 surelog/parse: image/bin/surelog clean-build
 	(cd ${root_dir}/build && \
 		${SURELOG_BIN} -parse -sverilog -d coveruhdm $(TOP_FILE))
-	cp ${root_dir}/build/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm
+	cp ${root_dir}/build/slpp_all/surelog.uhdm ${TOP_UHDM}
 
 uhdm/yosys/verilate-ast: uhdm/yosys/test-ast image/bin/verilator
 	(cd $(root_dir)/build && \
@@ -117,19 +113,19 @@ surelog/parse-earlgrey: image/bin/surelog clean-build
 	(cd ${root_dir}/Surelog/third_party/tests/Earlgrey_0_1/sim-icarus && \
 		${SURELOG_BIN} -f Earlgrey_0_1.sl \
 	)
-	cp ${root_dir}/Surelog/third_party/tests/Earlgrey_0_1/sim-icarus/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm
+	cp ${root_dir}/Surelog/third_party/tests/Earlgrey_0_1/sim-icarus/slpp_all/surelog.uhdm ${TOP_UHDM}
 
 surelog/ibex-verilator: image/bin/surelog clean-build
 	(cd ${root_dir}/Surelog/third_party/tests/Earlgrey_Verilator_0_1/sim-verilator && \
 		${SURELOG_BIN} -f Earlgrey_Verilator_0_1.sl)
-	cp ${root_dir}/Surelog/third_party/tests/Earlgrey_Verilator_0_1/sim-verilator/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm
+	cp ${root_dir}/Surelog/third_party/tests/Earlgrey_Verilator_0_1/sim-verilator/slpp_all/surelog.uhdm ${TOP_UHDM}
 
 surelog/ibex-simplesystem: image/bin/surelog clean-build
 	(cd ${root_dir}/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/sim-verilator \
 		${SURELOG_BIN} +define+VERILATOR \
 			-f lowrisc_ibex_ibex_simple_system_0.vc \
 			-parse -d coveruhdm -verbose)
-	cp ${root_dir}/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/sim-verilator/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm
+	cp ${root_dir}/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/sim-verilator/slpp_all/surelog.uhdm ${TOP_UHDM}
 
 uhdm/verilator/get-ast: image/bin/verilator clean-build
 	(cd $(root_dir)/build && \
