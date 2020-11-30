@@ -38,52 +38,30 @@ jobs:
         name: binaries
         path: image
 
+
+  generate_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate.outputs.matrix }}
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v2
+
+      - name: Generate matrix
+        id: generate
+        run: |
+          matrix="$(make list | grep '-')"
+          echo "::set-output name=matrix::$matrix"
+
   tests:
     runs-on: ubuntu-latest
-    needs: build-binaries
+    needs: [build-binaries, generate_matrix]
     strategy:
       matrix:
-        TEST_CASE:
-          - onenet
-          - OneNetModport
-          - OneFF
-          - OneAnd
-          - OneDivider
-          - OneNetInterf
-          - OneNetRange
-          - OneConcat
-          - OneReplicate
-          - OneAlwaysComb
-          - OneShift
-          - OneArithShift
-          - OneSysFunc
-          - OneInside
-          - OneImport
-          - OneCast
-          - OnePackage
-          - OneStruct
-          - fsm_single_always
-          - fsm_using_function
-          - fsm_using_always
-          - AluOps
-          - UnitForLoop
-          - GenerateAssigns
-          - AssignmentPattern
-          - MixedPatterns
-          - MultipleCells
-          - MultipleNets
-          - MultiplePrints
-          - IndexedPartSelect
-          - PartSelect
-          - VarSelect
-          - EnumInPackage
-          - StructInPackage
+        TEST_CASE: ${{ needs.generate-matrix.outputs.matrix }}
         TARGET:
           - uhdm/yosys/test-ast
           - uhdm/verilator/test-ast
-        exclude:
-          - TEST_CASE: OneThis
-            TARGET: uhdm/verilator/test-ast
       fail-fast:
         false
     env:
@@ -114,7 +92,7 @@ jobs:
     - name: Build & Test
       run: ./.github/ci.sh
       env:
-        TEST_CASE: tests/${{ matrix.TEST_CASE }}
+        TEST_CASE: ${{ matrix.TEST_CASE }}
         TARGET: ${{ matrix.TARGET }}
 
 
