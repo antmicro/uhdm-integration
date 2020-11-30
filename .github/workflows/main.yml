@@ -98,7 +98,8 @@ jobs:
 
     - name: Update binaries timestamp
       run: |
-        find image -type f -exec touch {} +
+        cd image
+        find . -type f -exec touch {} +
 
     - name: Build & Test
       run: ./.github/ci.sh
@@ -137,7 +138,8 @@ jobs:
 
     - name: Update binaries timestamp
       run: |
-        find image -type f -exec touch {} +
+        cd image
+        find . -type f -exec touch {} +
 
     - name: Build & Test
       run: ./.github/ci.sh
@@ -180,7 +182,8 @@ jobs:
 
     - name: Update binaries timestamp
       run: |
-        find image -type f -exec touch {} +
+        cd image
+        find . -type f -exec touch {} +
 
     - name: Print image files
       run: |
