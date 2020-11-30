@@ -170,6 +170,12 @@ jobs:
       with:
         name: binaries
 
+    - name: Print image files
+      run: |
+        ls -la .
+        ls -la image
+        ls -la image/bin
+
     - name: Build & Test
       run: |
         pip install virtualenv
