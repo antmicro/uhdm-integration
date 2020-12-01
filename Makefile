@@ -53,7 +53,11 @@ prep: image/bin/verilator image/bin/yosys image/bin/surelog image/bin/vcddiff
 
 # ------------ Test targets ------------
 
-uhdm/vcddiff: | clean-build image/bin/vcddiff uhdm/verilator/test-ast uhdm/yosys/verilate-ast
+uhdm/vcddiff: clean-build image/bin/vcddiff
+	# Make sure verilator/test-ast and yosys/verilate-ast are not runned in parallel
+	# when executed with -j flag
+	$(MAKE) uhdm/verilator/test-ast
+	$(MAKE) uhdm/yosys/verilate-ast
 	$(VCDDIFF_BIN) $(root_dir)/build/dump_yosys.vcd $(root_dir)/build/dump_verilator.vcd
 
 uhdm/verilator/test-ast: image/bin/verilator surelog/parse
