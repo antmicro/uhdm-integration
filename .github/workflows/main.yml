@@ -34,7 +34,7 @@ jobs:
         # By default actions/upload-artifact@v2 do not preserve file permissions
         # tar directory to workaround this issue
         # See https://github.com/actions/upload-artifact/issues/38
-        tar -cvf binaries.tar images
+        tar -cvf binaries.tar image
 
     - name: Upload binaries
       uses: actions/upload-artifact@v2
