@@ -12,7 +12,7 @@ IBEX_PKG_SOURCES = \
                 sed 's@^..@${IBEX_BUILD}@')
 
 #Sources that will be skipped by Surelog uhdm
-SKIP_SOURCES=ibex_fetch_fifo.sv\|top_artya7.sv\|ram_1p.sv
+SKIP_SOURCES=ibex_fetch_fifo.sv
 
 IBEX_SOURCES = \
         $(shell \
@@ -36,6 +36,7 @@ surelog/parse-ibex: surelog
 		fusesoc --cores-root=. run --target=synth --setup lowrisc:ibex:top_artya7 --part xc7a35ticsg324-1L && \
 	${root_dir}/image/bin/surelog -parse -sverilog \
 		-v ${root_dir}/yosys/techlibs/xilinx/cells_xtra_surelog.v \
+		-DSRAMInitFile="${root_dir}/led.vmem" \
 		$(IBEX_INCLUDE) \
 		$(IBEX_SOURCES) ${IBEX_PKG_SOURCES} && \
 	cp ${IBEX}/slpp_all/surelog.uhdm ${root_dir}/build/top.uhdm)
@@ -53,7 +54,7 @@ uhdm/yosys/synth-ibex: yosys/yosys surelog/parse-ibex
 	mkdir -p ${root_dir}/build
 	(cd ${root_dir}/build && \
 	${YOSYS_BIN} \
-		     -p 'read_uhdm ${TOP_UHDM}' \
+		     -p 'read_uhdm -debug ${TOP_UHDM}' \
 		     -p 'read_verilog ${IBEX_INCLUDE} -sv ${IBEX_SOURCES_SKIPPED}' \
 		     -p 'chparam -set SRAMInitFile "${root_dir}/led.vmem" top_artya7' \
 		     -p 'read_verilog -lib -specify +/xilinx/cells_sim.v' \
