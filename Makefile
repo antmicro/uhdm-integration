@@ -74,7 +74,7 @@ surelog/regression:
 
 surelog/parse: clean-build | image/bin/surelog
 	(cd ${root_dir}/build && \
-		${SURELOG_BIN} -parse -sverilog -d coveruhdm $(TOP_FILE))
+		${SURELOG_BIN} -parse -sverilog -d coveruhdm $(INCLUDE) $(TOP_FILE))
 	cp ${root_dir}/build/slpp_all/surelog.uhdm ${TOP_UHDM}
 
 uhdm/verilator/test-ast-generate:surelog/parse | image/bin/verilator
