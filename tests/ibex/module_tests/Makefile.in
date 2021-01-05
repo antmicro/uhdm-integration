@@ -1,2 +1,5 @@
 IBEX = ${root_dir}/tests/ibex/ibex
-IBEX_BUILD = ${IBEX}/build/lowrisc_ibex_top_artya7_0.1
+#IBEX_BUILD = ${IBEX}/build/lowrisc_ibex_top_artya7_0.1
+IBEX_BUILD = ${IBEX}/build/lowrisc_ibex_ibex_simple_system_0
+
+INCLUDE := -I$(IBEX_BUILD)/src/lowrisc_prim_assert_0.1/rtl/
