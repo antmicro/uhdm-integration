@@ -150,3 +150,20 @@ uhdm/verilator/ast-xml: surelog/parse | image/bin/verilator
 
 vcd:
 	gtkwave $(root_dir)/build/dump.vcd &>/dev/null &
+
+surelog-ibex:
+	${SURELOG_BIN} -f ibex_uhdm.txt
+	cp ${root_dir}/slpp_all/surelog.uhdm top.uhdm
+
+ibex-ci:
+	$(VERILATOR_BIN) -f ibex_sv.txt
+#	$(VERILATOR_BIN) --cc -sv \
+#-Itests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_prim_assert_0.1/rtl/ \
+#tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_ibex_ibex_pkg_0.1/rtl/ibex_pkg.sv \
+#tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_cs_registers.sv \
+#tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_core.sv \
+#tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_ibex_ibex_simple_system_0/rtl/ibex_simple_system.sv \
+#			--top-module ibex_simple_system \
+#                        --exe tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_ibex_ibex_simple_system_0/ibex_simple_system.cc --trace
+#
+

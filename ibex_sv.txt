@@ -1,0 +1,21 @@
+--cc
++incdir+/media/newdrive/prjxray/uhdm-integration/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_dv_verilator_ibex_pcounts_0/cpp
+-CFLAGS -I/media/newdrive/prjxray/uhdm-integration/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_dv_verilator_ibex_pcounts_0/cpp
++incdir+/media/newdrive/prjxray/uhdm-integration/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_dv_verilator_memutil_dpi_0/cpp
+-CFLAGS -I/media/newdrive/prjxray/uhdm-integration/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_dv_verilator_memutil_dpi_0/cpp
++incdir+/media/newdrive/prjxray/uhdm-integration/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_dv_verilator_simutil_verilator_0/cpp
+-CFLAGS -I/media/newdrive/prjxray/uhdm-integration/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_dv_verilator_simutil_verilator_0/cpp
++incdir+/media/newdrive/prjxray/uhdm-integration/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_prim_assert_0.1/rtl
+-CFLAGS -I/media/newdrive/prjxray/uhdm-integration/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_prim_assert_0.1/rtl
++incdir+/media/newdrive/prjxray/uhdm-integration/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_prim_util_memload_0/rtl
+-CFLAGS -I/media/newdrive/prjxray/uhdm-integration/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_prim_util_memload_0/rtl
++incdir+/media/newdrive/prjxray/uhdm-integration/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_dv_verilator_memutil_verilator_0/cpp
+-CFLAGS -I/media/newdrive/prjxray/uhdm-integration/tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_dv_verilator_memutil_verilator_0/cpp
+
+tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_ibex_ibex_core_0.1/lint/verilator_waiver.vlt
+tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_ibex_ibex_pkg_0.1/rtl/ibex_pkg.sv
+tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_cs_registers.sv
+tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_core.sv
+tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_ibex_ibex_simple_system_0/rtl/ibex_simple_system.sv
+--top-module ibex_simple_system
+--exe tests/ibex/ibex/build/lowrisc_ibex_ibex_simple_system_0/src/lowrisc_ibex_ibex_simple_system_0/ibex_simple_system.cc --trace
