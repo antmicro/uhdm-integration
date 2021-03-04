@@ -1,0 +1,2 @@
+TOP_FILE := $(TEST_DIR)/exp_operator_sim_0.sv
+TOP_MODULE := top
