@@ -1,0 +1,14 @@
+{
+  "categories": [
+    "ASIC & FPGA"
+  ],
+  "tags": [
+    "fpga",
+    "asic",
+    "verilog",
+    "systemverilog",
+    "parser",
+    "synthesis",
+    "simulation"
+  ]
+}
