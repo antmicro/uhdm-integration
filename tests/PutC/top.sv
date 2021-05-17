@@ -1,11 +1,17 @@
-module top(output reg a);
-   string b = "Test";
+module top(output reg a, output reg b);
+   string c = "Test_string";
+   string d;
    initial
       begin
-         b.putc(2, "x");
-         if(b == "Text")
+	 d = "Test_assign";
+	 if(c == "Test") begin
             a = 1;
-         else
+	    b = 0;
+	    c = "yes";
+	 end else begin
             a = 0;
+	    b = 1;
+	    c = "no";
+	 end
       end
 endmodule
