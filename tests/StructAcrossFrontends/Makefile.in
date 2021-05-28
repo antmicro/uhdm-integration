@@ -1,0 +1,3 @@
+TOP_FILE := $(TEST_DIR)/dut.sv
+TOP_MODULE := dut
+VERILATOR_FLAGS := --cc $(TEST_DIR)/top.sv
