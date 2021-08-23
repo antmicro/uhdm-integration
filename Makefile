@@ -23,6 +23,10 @@ TOP_UHDM = ${root_dir}/build/$(TOP_MODULE).uhdm
 TOP_MAKEFILE := V$(TOP_MODULE).mk
 # SURELOG_FLAGS are empty by default, unless set in Makefile.in
 
+ifdef USE_VALGRIND
+	YOSYS_BIN := valgrind --leak-check=full --log-file=valgrind.out --show-leak-kinds=all ${YOSYS_BIN}
+endif
+
 list:
 	@echo "Available tests:"
 	@for TEST in $(TESTS); do echo "- tests/$$TEST"; done
