@@ -1,5 +1,5 @@
 plugin -i uhdm
-read_uhdm -debug top.uhdm
+read_verilog_with_uhdm -parse ../tests/ArraySize/top.sv
 prep -top \top
 write_verilog
 write_verilog yosys.sv
