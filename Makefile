@@ -53,7 +53,7 @@ uhdm/verilator/test-cmake: surelog/parse
 		./$(VERILATED_BIN))
 
 uhdm/yosys/test-ast: surelog/parse
-	(cd $(root_dir)/build && ${YOSYS_BIN} -s $(YOSYS_SCRIPT))
+	(cd $(root_dir)/build && ${YOSYS_BIN} -c $(YOSYS_SCRIPT))
 
 # ------------ Test helper targets ------------
 

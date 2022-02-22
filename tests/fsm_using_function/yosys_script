@@ -1,3 +1,4 @@
+yosys -import
 plugin -i uhdm
 read_uhdm -debug fsm_using_function.uhdm
 prep -top \fsm_using_function

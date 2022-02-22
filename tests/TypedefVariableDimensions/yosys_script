@@ -1,3 +1,4 @@
+yosys -import
 plugin -i uhdm
 read_uhdm -debug top.uhdm
 prep -top \top
