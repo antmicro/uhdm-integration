@@ -13,6 +13,9 @@ TEST_DIR := $(root_dir)/$(TEST)
 MAIN_FILE ?= $(TEST_DIR)/main.cpp
 YOSYS_SCRIPT := $(TEST_DIR)/yosys_script
 
+YOSYS_READ_COMMAND ?= read_uhdm
+export YOSYS_READ_COMMAND
+
 # this include should set $(TOP_FILE) and $(TOP_MODULE) variables
 include $(TEST)/Makefile.in
 
