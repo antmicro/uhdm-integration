@@ -12,6 +12,8 @@ COVARAGE_REPORT = ${root_dir}/build/coverage
 TEST_DIR := $(realpath $(root_dir)/$(TEST))
 MAIN_FILE ?= $(TEST_DIR)/main.cpp
 YOSYS_SCRIPT := $(TEST_DIR)/yosys_script
+YOSYS_TCL := $(TEST_DIR)/yosys.tcl
+PARSER ?= surelog
 
 # this include should set $(TOP_FILE) and $(TOP_MODULE) variables
 include $(TEST)/Makefile.in
@@ -63,6 +65,14 @@ uhdm/yosys/test-ast: $(if $(USE_YOSYS_SURELOG_FRONTEND),clean-build,surelog/pars
 	(cd $(root_dir)/build && \
 		echo 'yosys $$env(YOSYS_READ_COMMAND)' > read.tcl && \
 		${YOSYS_BIN} -s $(YOSYS_SCRIPT))
+
+ifeq ($(PARSER),surelog)
+uhdm/yosys-plugin/test-ast: clean-build surelog/parse
+else
+uhdm/yosys-plugin/test-ast: clean-build
+endif
+	(export TOP_FILE=${TOP_FILE} && \
+	cd $(root_dir)/build && ${YOSYS_BIN} -c $(YOSYS_TCL))
 
 # ------------ Test helper targets ------------
 
