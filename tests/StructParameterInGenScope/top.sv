@@ -3,6 +3,7 @@ module top();
   parameter int AllPagesW       = 10;
   parameter int BankW           = 3;
   parameter int InfoPageW       = 3;
+  parameter int PageW           = 3;
   typedef struct packed {
     logic [InfoTypesWidth-1:0] sel;
     logic [AllPagesW-1:0] addr;
