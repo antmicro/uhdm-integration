@@ -1,32 +1,3 @@
-module top
-(
-  clk,
-  reset,
-  calibration_done_i,
-  valid_i,
-  data_i,
-  ready_o,
-  in_top_channel_i,
-  out_top_channel_i,
-  valid_o,
-  data_o,
-  ready_i
-);
-
-  input [159:0] data_i;
-  input [3:0] in_top_channel_i;
-  input [2:0] out_top_channel_i;
-  output [4:0] valid_o;
-  output [79:0] data_o;
-  input [4:0] ready_i;
-  input clk;
-  input reset;
-  input calibration_done_i;
-  input valid_i;
-  output ready_o;
-
-endmodule
-
 module bsg_mem_1r1w_synth_width_p16_els_p2_read_write_same_addr_p0
 (
   w_clk_i,
@@ -69,37 +40,6 @@ module bsg_mem_1r1w_synth_width_p16_els_p2_read_write_same_addr_p0
 
 endmodule
 
-module bsg_mem_1r1w_width_p16_els_p2_read_write_same_addr_p0
-(
-  w_clk_i,
-  w_v_i,
-  w_addr_i,
-  w_data_i,
-  r_addr_i,
-  r_data_o
-);
-
-  input [0:0] w_addr_i;
-  input [15:0] w_data_i;
-  input [0:0] r_addr_i;
-  output [15:0] r_data_o;
-  input w_clk_i;
-  input w_v_i;
-  wire [15:0] r_data_o;
-
-  bsg_mem_1r1w_synth_width_p16_els_p2_read_write_same_addr_p0
-  synth
-  (
-    .w_clk_i(w_clk_i),
-    .w_v_i(w_v_i),
-    .w_addr_i(w_addr_i[0]),
-    .w_data_i(w_data_i),
-    .r_addr_i(r_addr_i[0]),
-    .r_data_o(r_data_o)
-  );
-
-
-endmodule
 
 module bsg_two_fifo_width_p16_ready_THEN_valid_p1
 (
@@ -130,8 +70,8 @@ module bsg_two_fifo_width_p16_ready_THEN_valid_p1
   assign head_r = head_r_sv2v_reg;
   assign empty_r = empty_r_sv2v_reg;
 
-  bsg_mem_1r1w_width_p16_els_p2_read_write_same_addr_p0
-  mem_1r1w
+  bsg_mem_1r1w_synth_width_p16_els_p2_read_write_same_addr_p0
+  synth
   (
     .w_clk_i(clk_i),
     .w_v_i(v_i),
